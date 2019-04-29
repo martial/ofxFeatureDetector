@@ -16,7 +16,7 @@
 
 meta:
 	ADDON_NAME = ofxFeatureDetector
-	ADDON_DESCRIPTION = Addon for OPENCV ( 2.4 ) computer vision using the open source library openCv + example for Surf Tracking
+	ADDON_DESCRIPTION = Addon for OPENCV ( 3.8 ) computer vision using the open source library openCv + example for Surf Tracking
 	ADDON_AUTHOR = OF Team
 	ADDON_TAGS = "computer vision" "opencv" "image processing"
 	ADDON_URL = http://github.com/openframeworks/openFrameworks
@@ -59,65 +59,3 @@ common:
 	# when parsing the file system looking for libraries exclude this for all or
 	# a specific platform
 	# ADDON_LIBS_EXCLUDE =
-
-linux64:
-    ADDON_PKG_CONFIG_LIBRARIES = opencv
-    ADDON_LIBS_EXCLUDE = libs/opencv/%
-    ADDON_INCLUDES_EXCLUDE = libs/opencv
-    ADDON_INCLUDES_EXCLUDE += libs/opencv/%
-
-linux:
-    ADDON_PKG_CONFIG_LIBRARIES = opencv
-    ADDON_LIBS_EXCLUDE = libs/opencv/%
-    ADDON_INCLUDES_EXCLUDE = libs/opencv
-    ADDON_INCLUDES_EXCLUDE += libs/opencv/%
-
-linuxarmv6l:
-    ADDON_PKG_CONFIG_LIBRARIES = opencv
-    ADDON_LIBS_EXCLUDE = libs/opencv/%
-    ADDON_INCLUDES_EXCLUDE = libs/opencv
-    ADDON_INCLUDES_EXCLUDE += libs/opencv/%
-
-linuxarmv7l:
-    ADDON_PKG_CONFIG_LIBRARIES = opencv
-    ADDON_LIBS_EXCLUDE = libs/opencv/%
-    ADDON_INCLUDES_EXCLUDE = libs/opencv
-    ADDON_INCLUDES_EXCLUDE += libs/opencv/%
-
-msys2:
-	ADDON_PKG_CONFIG_LIBRARIES = opencv
-	ADDON_LIBS_EXCLUDE = libs/opencv/%
-    ADDON_INCLUDES_EXCLUDE = libs/opencv
-    ADDON_INCLUDES_EXCLUDE += libs/opencv/%
-
-android/armeabi:
-	ADDON_LIBS =
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_legacy.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_calib3d.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_features2d.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_objdetect.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_video.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_imgproc.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_highgui.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_ml.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_core.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_flann.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi/libopencv_contrib.a
-
-android/armeabi-v7a:
-	ADDON_LIBS =
-	ADDON_LIBS += libs/opencv/lib/android/armeabi-v7a/libopencv_legacy.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi-v7a/libopencv_calib3d.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi-v7a/libopencv_features2d.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi-v7a/libopencv_objdetect.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi-v7a/libopencv_video.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi-v7a/libopencv_imgproc.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi-v7a/libopencv_ml.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi-v7a/libopencv_core.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi-v7a/libopencv_flann.a
-	ADDON_LIBS += libs/opencv/lib/android/armeabi-v7a/libopencv_contrib.a
-
-
-ios:
-	# osx/iOS only, any framework that should be included in the project
-	ADDON_FRAMEWORKS = AssetsLibrary

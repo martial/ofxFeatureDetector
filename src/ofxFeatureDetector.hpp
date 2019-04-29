@@ -11,7 +11,10 @@
 #include "ofMain.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d/features2d.hpp>
-#include <opencv2/nonfree/features2d.hpp>
+#include <opencv2/xfeatures2d.hpp>
+
+using namespace cv;
+using namespace cv::xfeatures2d;
 
 class ofxFeatureDetector : public ofThread {
   
@@ -46,8 +49,6 @@ public:
     
 private:
     
-    cv::SurfDescriptorExtractor extractor;
-    cv::FlannBasedMatcher matcher;
     
     vector<cv::Mat> images;
     ofThreadChannel<cv::Mat> camChannel;

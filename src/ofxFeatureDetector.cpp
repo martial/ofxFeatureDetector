@@ -31,24 +31,29 @@ void ofxFeatureDetector::threadedFunction() {
             std::vector<cv::KeyPoint> keypoints_object, keypoints_scene;
             
             // detect and compute input
-            cv::SurfFeatureDetector detector(minHessian);
-            detector.detect( cam, keypoints_scene );
+            cv::Ptr<SURF> detector = SURF::create(minHessian);
+            detector->detect( cam, keypoints_scene );
             cv::Mat descriptors_scene;
-            extractor.compute( cam, keypoints_scene, descriptors_scene );
+            Ptr<SURF> extractor = SURF::create();
+
+            extractor->compute( cam, keypoints_scene, descriptors_scene );
+            
+            cv::Ptr<cv::FlannBasedMatcher> matcher = cv::FlannBasedMatcher::create();
+
             
             // detect and compute all images
             
             for(int i=0; i<images.size(); i++) {
                 
                 std::vector<cv::KeyPoint> keypoints_object;
-                detector.detect( images[i], keypoints_object );
+                detector->detect( images[i], keypoints_object );
                 cv::Mat descriptors_object;
-                extractor.compute( images[i], keypoints_object, descriptors_object );
+                extractor->compute( images[i], keypoints_object, descriptors_object );
                 
                 
                 // match !
                 vector<vector<cv::DMatch>> matches;
-                matcher.knnMatch( descriptors_object, descriptors_scene, matches, 2 );
+                matcher->knnMatch( descriptors_object, descriptors_scene, matches, 2 );
                 
                 vector<cv::DMatch> good_matches;
                 good_matches.reserve(matches.size());

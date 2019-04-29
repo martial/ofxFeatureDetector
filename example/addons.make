@@ -1,1 +1,3 @@
+ofxCv
 ofxFeatureDetector
+ofxOpenCv
