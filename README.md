@@ -1,7 +1,5 @@
 ofxFeatureDetector
 ================
 
-OpenFrameworks addon for using OPENCV ( 2.4 ) + SurfTracking feature.   
-   
-   Warning – this will overwrite your ofxOpenCV with last OF version.    
-
+OpenFrameworks addon for using OPENCV ( 3.4 ) + SurfTracking feature.   
+You need to compile openCV 3.4 with custom modules.
