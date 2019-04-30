@@ -9,6 +9,9 @@
 #define FeatureDetector_hpp
 
 #include "ofMain.h"
+#include "ofxOpenCv.h"
+#include "ofxCv.h"
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/xfeatures2d.hpp>
@@ -32,8 +35,10 @@ public:
     void update(ofPixels & input);
     void threadedFunction();
     void draw();
+
+    bool getDetected(int index);
     
-    void addImageToTrack(ofImage & image);
+    void addImageToTrack(ofImage  & image);
     
     /// Start the thread.
     void start(){
@@ -49,11 +54,20 @@ public:
     
 private:
     
+    //Ptr<cv::ORB>            detector;
+    //Ptr<DescriptorMatcher>  matcher;
+
+    cv::Ptr<BRISK> detector;
+    cv::Ptr<BRISK> extractor;
+    ofxCvColorImage			camImg;
+    ofxCvGrayscaleImage 	camGrayImg;
     
     vector<cv::Mat> images;
     ofThreadChannel<cv::Mat> camChannel;
-    ofThreadChannel<cv::Mat> channels[12];
     int nChannels;
+    bool bHasProcessed;
+
+    vector<bool> detecteds;
 
 };
 

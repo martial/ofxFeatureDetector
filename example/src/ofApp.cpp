@@ -6,11 +6,12 @@ void ofApp::setup(){
     ofSetFrameRate(30);
     
     cam.setup(640,480);
+
+    detector.setup();
     image2.load("horses.jpg");
-    
     detector.addImageToTrack(image2);
     
-    imageTest.load("Homer-Simpson-homer-simpson-3065329-800-600.jpg");
+   imageTest.load("Homer-Simpson-homer-simpson-3065329-800-600.jpg");
     detector.addImageToTrack(imageTest);
     detector.start();
 
@@ -33,7 +34,16 @@ void ofApp::draw(){
     
     ofSetColor(255, 255, 255);
     cam.draw(0.0,0.0);
-    
+
+    for(int i=0; i<2; i++) {
+
+        if(detector.getDetected(i)) {
+
+            ofDrawBitmapStringHighlight(ofToString(i) + " is detected !", 20, 480 + i * 20);
+
+        }
+
+    }
 }
 
 //--------------------------------------------------------------
