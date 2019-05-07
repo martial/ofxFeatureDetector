@@ -9,20 +9,17 @@
 
 void ofxFeatureDetector::setup() {
 
-    detector = BRISK::create();
-    extractor = BRISK::create();
+    detector = BRISK::create(25, 3 );    
     bHasProcessed = true;
+
 
 }
 void ofxFeatureDetector::update(ofPixels & input) {
     
-    camImg.clear();
-    camGrayImg.clear();
     camImg.allocate(640, 480);
-
-    camImg.setFromPixels(input);
     camGrayImg.allocate(640, 480);
-
+    
+    camImg.setFromPixels(input);
     camGrayImg = camImg;
 
     cv::Mat sceneImg = cv::cvarrToMat(camGrayImg.getCvImage());
@@ -52,14 +49,13 @@ void ofxFeatureDetector::threadedFunction() {
             cv::Mat descriptors_scene;
 
             detector->detect(cam, keypoints_scene);
-            extractor->compute(cam,  keypoints_scene, descriptors_scene);
-
+            detector->compute(cam,  keypoints_scene, descriptors_scene);
+                
             // detect and compute all images
 
             FlannBasedMatcher matcher(new flann::LshIndexParams(20,10,2));
 
             for(int i=0; i<images.size(); i++) {
-
 
                 if (images[i].empty()) {
                      std::cerr << "Couldn't read image in";
@@ -73,7 +69,6 @@ void ofxFeatureDetector::threadedFunction() {
                 vector<cv::DMatch> good_matches;
                 good_matches.reserve(matches.size());
 
-
                 for(size_t i = 0; i < matches.size(); ++i)
                 {
                     if(matches[i].size() < 2)
@@ -85,9 +80,10 @@ void ofxFeatureDetector::threadedFunction() {
                     if(m1.distance <= 0.5 * m2.distance)
                         good_matches.push_back(m1);
                 }
+                
+               // ofLogNotice("search image at ") << i << " with " <<  good_matches.size();
 
-
-                if( good_matches.size() >=5 ) {
+                if( good_matches.size() > 0 ) {
                     ofLogNotice("detected image at ") << i << " with " <<  good_matches.size();
                     detecteds[i] = true;
                 } else {
@@ -120,7 +116,8 @@ bool ofxFeatureDetector::getDetected(int index) {
 }
 
 
-void ofxFeatureDetector::addImageToTrack(ofImage & image) {
+void ofxFeatureDetector::addImageToTrack(ofImage & image, string label) {
+    
     
     ofxCvColorImage			img;
     ofxCvGrayscaleImage 	grayImg;
@@ -137,10 +134,11 @@ void ofxFeatureDetector::addImageToTrack(ofImage & image) {
     cv::Mat descriptors_object;
 
     detector->detect(matImg, keypoints_object);
-    extractor->compute(matImg,  keypoints_object, descriptors_object);
+    detector->compute(matImg,  keypoints_object, descriptors_object);
 
     images.push_back(descriptors_object);
     detecteds.push_back(0);
+    
+    labels.push_back(label);
 
-    nChannels++;
 }

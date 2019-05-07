@@ -6,13 +6,24 @@ void ofApp::setup(){
     ofSetFrameRate(30);
     
     cam.setup(640,480);
-
-    detector.setup();
-    image2.load("horses.jpg");
-    detector.addImageToTrack(image2);
     
-   imageTest.load("Homer-Simpson-homer-simpson-3065329-800-600.jpg");
-    detector.addImageToTrack(imageTest);
+    detector.setup();
+    
+    string path = "markers";
+    ofDirectory dir(path);
+    dir.allowExt("jpg");
+    dir.listDir();
+    
+    //go through and print out all the paths
+    for(int i = 0; i < dir.size(); i++){
+        
+        ofImage img;
+        img.load(dir.getPath(i));
+        detector.addImageToTrack(img, dir.getFile(i).getFileName());
+        images.push_back(img);
+    }
+    
+  
     detector.start();
 
 
@@ -35,12 +46,10 @@ void ofApp::draw(){
     ofSetColor(255, 255, 255);
     cam.draw(0.0,0.0);
 
-    for(int i=0; i<2; i++) {
+    for(int i=0; i<images.size(); i++) {
 
         if(detector.getDetected(i)) {
-
-            ofDrawBitmapStringHighlight(ofToString(i) + " is detected !", 20, 480 + i * 20);
-
+            ofDrawBitmapStringHighlight(detector.labels[i] + " is detected !", 20, 480 + i * 20);
         }
 
     }

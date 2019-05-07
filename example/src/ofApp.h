@@ -26,5 +26,5 @@ class ofApp : public ofBaseApp{
         ofVideoGrabber cam;
         ofxFeatureDetector detector;
 
-		
+        vector<ofImage> images;
 };

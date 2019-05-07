@@ -38,7 +38,7 @@ public:
 
     bool getDetected(int index);
     
-    void addImageToTrack(ofImage  & image);
+    void addImageToTrack(ofImage  & image, string label);
     
     /// Start the thread.
     void start(){
@@ -49,7 +49,8 @@ public:
         stopThread();
     }
     
-    
+    vector<string> labels;
+
     
     
 private:
@@ -58,11 +59,12 @@ private:
     //Ptr<DescriptorMatcher>  matcher;
 
     cv::Ptr<BRISK> detector;
-    cv::Ptr<BRISK> extractor;
+    FlannBasedMatcher * matcher;
     ofxCvColorImage			camImg;
     ofxCvGrayscaleImage 	camGrayImg;
     
     vector<cv::Mat> images;
+
     ofThreadChannel<cv::Mat> camChannel;
     int nChannels;
     bool bHasProcessed;
