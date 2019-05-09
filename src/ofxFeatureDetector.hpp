@@ -57,11 +57,14 @@ private:
     
     //Ptr<cv::ORB>            detector;
     //Ptr<DescriptorMatcher>  matcher;
+    
+    Ptr<FeatureDetector> detector;
+    Ptr<DescriptorExtractor> extractor;
 
-    cv::Ptr<BRISK> detector;
+    //cv::Ptr<ORB> detector;
     FlannBasedMatcher * matcher;
     ofxCvColorImage			camImg;
-    ofxCvGrayscaleImage 	camGrayImg;
+    ofxCvColorImage 	camGrayImg;
     
     vector<cv::Mat> images;
 
