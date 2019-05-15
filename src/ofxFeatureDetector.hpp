@@ -76,6 +76,8 @@ private:
     vector<bool>    detecteds;
     vector<int>     detectedsScore;
     
+    float currentTime;
+    
 };
 
 #endif /* FeatureDetector_hpp */

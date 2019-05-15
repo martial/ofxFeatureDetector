@@ -16,6 +16,7 @@ void ofxFeatureDetector::setup() {
  
     bHasProcessed = true;
     
+    currentTime = ofGetElapsedTimeMillis();
 
 
 }
@@ -122,9 +123,15 @@ void ofxFeatureDetector::threadedFunction() {
                     }
                     
                     detectedsScore[i] = ofClamp(detectedsScore[i], 0, 3);
+                    
                     if( detectedsScore[i] == 0 ||  detectedsScore[i] == 3) {
-                        detecteds[i] = detectedsScore[i] == 3;
-                        ofLogNotice("status image at ") << i << " with " <<  detecteds[i];
+                        
+                        bool bIsDetected = detectedsScore[i] == 3;
+                        
+                        if(bIsDetected != detecteds[i] )
+                            ofLogNotice("status image at ") << i << " with " <<  detecteds[i];
+
+                        detecteds[i] = bIsDetected;
 
                     }
                     
@@ -135,6 +142,10 @@ void ofxFeatureDetector::threadedFunction() {
              }
 
             bHasProcessed = true;
+        
+            float timeDiff = ofGetElapsedTimeMillis() - currentTime;
+            ofLogNotice("ofxFeatureDetector ")  << " processed in " <<  timeDiff << " millis";
+            currentTime = ofGetElapsedTimeMillis();
 
         }
 
