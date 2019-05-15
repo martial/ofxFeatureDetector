@@ -67,8 +67,8 @@ void ofxFeatureDetector::threadedFunction() {
             //FlannBasedMatcher matcher(new flann::LshIndexParams(20,10,2));
             //Ptr<cv::DescriptorMatcher> matcher(new cv::BFMatcher(cv::NORM_HAMMING, false));
                 
-            float distRatio = 0.6;
-            ofLogNotice("distRatioat ") << distRatio;
+            float distRatio = 0.5;
+           // ofLogNotice("distRatioat ") << distRatio;
 
             for(int i=0; i<images.size(); i++) {
 
