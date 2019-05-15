@@ -10,7 +10,6 @@
 void ofxFeatureDetector::setup() {
 
     //detector = BRISK::create(30, 4 );
-    
     detector = ORB::create(1000);
     extractor = ORB::create(1000);
     matcher = new cv::BFMatcher(cv::NORM_HAMMING, false);
@@ -57,8 +56,6 @@ void ofxFeatureDetector::threadedFunction() {
             std::vector<cv::KeyPoint> keypoints_scene;
             cv::Mat descriptors_scene;
                 
-
-
             detector->detect(cam, keypoints_scene);
             extractor->compute(cam,  keypoints_scene, descriptors_scene);
                 
@@ -117,10 +114,18 @@ void ofxFeatureDetector::threadedFunction() {
                     
                     
                     if( good_matches.size() > 3 ) {
-                        ofLogNotice("detected image at ") << i << " with " <<  scorePct;
-                        detecteds[i] = true;
+                        
+                        detectedsScore[i]++;
                     } else {
-                         detecteds[i] = false;
+                        
+                        detectedsScore[i]--;
+                    }
+                    
+                    detectedsScore[i] = ofClamp(detectedsScore[i], 0, 3);
+                    if( detectedsScore[i] == 0 ||  detectedsScore[i] == 3) {
+                        detecteds[i] = detectedsScore[i] == 3;
+                        ofLogNotice("status image at ") << i << " with " <<  detecteds[i];
+
                     }
                     
                 } catch (...) {
@@ -176,14 +181,14 @@ void ofxFeatureDetector::addImageToTrack(ofImage & image, string label) {
 
         images.push_back(descriptors_object);
         detecteds.push_back(0);
-        
+        detectedsScore.push_back(0);
         labels.push_back(label);
         
-        ofLogNotice("image loaded ok ") << label;
+       // ofLogNotice("image loaded ok ") << label;
 
         
     } else {
-        ofLogNotice("error while loading image ") << label;
+        //ofLogNotice("error while loading image ") << label;
     }
 
 }

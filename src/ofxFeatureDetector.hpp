@@ -73,8 +73,9 @@ private:
     int nChannels;
     bool bHasProcessed;
 
-    vector<bool> detecteds;
-
+    vector<bool>    detecteds;
+    vector<int>     detectedsScore;
+    
 };
 
 #endif /* FeatureDetector_hpp */
