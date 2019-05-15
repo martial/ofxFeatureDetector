@@ -20,16 +20,15 @@ void ofxFeatureDetector::setup() {
 
 
 }
-void ofxFeatureDetector::update(ofPixels & input, ofRectangle roi) {
+void ofxFeatureDetector::update(ofPixels & input) {
     
     camImg.clear();
     camGrayImg.clear();
-    
-    camImg.allocate(640, 480);
-    camGrayImg.allocate(640, 480);
+        
+    camImg.allocate( input.getWidth(),  input.getHeight());
+    camGrayImg.allocate( input.getWidth(), input.getHeight());
     
     camImg.setFromPixels(input);
-    camImg.setROI(roi);
     camGrayImg = camImg;
 
     cv::Mat sceneImg = cv::cvarrToMat(camGrayImg.getCvImage());

@@ -32,7 +32,7 @@ public:
     }
     
     void setup();
-    void update(ofPixels & input, ofRectangle roi);
+    void update(ofPixels & input);
     void threadedFunction();
     void draw();
 
