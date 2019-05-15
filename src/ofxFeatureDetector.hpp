@@ -62,10 +62,11 @@ private:
     Ptr<DescriptorExtractor> extractor;
 
     //cv::Ptr<ORB> detector;
-    FlannBasedMatcher * matcher;
+    //FlannBasedMatcher * matcher;
     ofxCvColorImage			camImg;
     ofxCvColorImage 	camGrayImg;
-    
+    Ptr<cv::DescriptorMatcher> matcher;
+
     vector<cv::Mat> images;
 
     ofThreadChannel<cv::Mat> camChannel;

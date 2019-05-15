@@ -11,8 +11,9 @@ void ofxFeatureDetector::setup() {
 
     //detector = BRISK::create(30, 4 );
     
-    detector = ORB::create();
-    extractor = ORB::create();
+    detector = ORB::create(1000);
+    extractor = ORB::create(1000);
+    matcher = new cv::BFMatcher(cv::NORM_HAMMING, false);
  
     bHasProcessed = true;
     
@@ -64,7 +65,10 @@ void ofxFeatureDetector::threadedFunction() {
             // detect and compute all images
 
             //FlannBasedMatcher matcher(new flann::LshIndexParams(20,10,2));
-            Ptr<cv::DescriptorMatcher> matcher(new cv::BFMatcher(cv::NORM_HAMMING, false));
+            //Ptr<cv::DescriptorMatcher> matcher(new cv::BFMatcher(cv::NORM_HAMMING, false));
+                
+            float distRatio = 0.6;
+            ofLogNotice("distRatioat ") << distRatio;
 
             for(int i=0; i<images.size(); i++) {
 
@@ -81,7 +85,10 @@ void ofxFeatureDetector::threadedFunction() {
 
                     vector<cv::DMatch> good_matches;
                     good_matches.reserve(matches.size());
-
+                    
+  
+                
+                    float totalScore = 0.0;
                     for(size_t i = 0; i < matches.size(); ++i)
                     {
                         if(matches[i].size() < 2)
@@ -89,15 +96,28 @@ void ofxFeatureDetector::threadedFunction() {
 
                         const cv::DMatch &m1 = matches[i][0];
                         const cv::DMatch &m2 = matches[i][1];
-
-                        if(m1.distance <= 0.5 * m2.distance)
+                        
+                        float targetDistance = distRatio * m2.distance;
+                        
+                        if(m1.distance <= targetDistance) {
                             good_matches.push_back(m1);
+                            
+                            float pct = 1.0 - ofNormalize(m1.distance, 0, targetDistance);
+                            totalScore += pct;
+                            
+                        }
+                        
+                        
                     }
                     
-                   // ofLogNotice("search image at ") << i << " with " <<  good_matches.size();
-
-                    if( good_matches.size() > 5 ) {
-                        ofLogNotice("detected image at ") << i << " with " <<  good_matches.size();
+                    float scorePct = 0;
+                    if(good_matches.size() > 0 ) {
+                        scorePct = totalScore / (float)good_matches.size();
+                    }
+                    
+                    
+                    if( good_matches.size() > 3 ) {
+                        ofLogNotice("detected image at ") << i << " with " <<  scorePct;
                         detecteds[i] = true;
                     } else {
                          detecteds[i] = false;
