@@ -50,6 +50,9 @@ public:
     }
     
     vector<string> labels;
+    
+    float distanceRatio;
+    int nTries;
 
     
     
@@ -78,6 +81,7 @@ private:
     
     float currentTime;
     
+    bool bVerbose;
 };
 
 #endif /* FeatureDetector_hpp */

@@ -10,14 +10,18 @@
 void ofxFeatureDetector::setup() {
 
     //detector = BRISK::create(30, 4 );
-    detector = ORB::create(1000);
-    extractor = ORB::create(1000);
-    matcher = new cv::BFMatcher(cv::NORM_HAMMING, false);
+    detector        = ORB::create(1000);
+    extractor       = ORB::create(1000);
+    matcher         = new cv::BFMatcher(cv::NORM_HAMMING, false);
  
-    bHasProcessed = true;
+    bHasProcessed   = true;
     
     currentTime = ofGetElapsedTimeMillis();
+    
+    distanceRatio   = 0.5;
+    nTries          = 3;
 
+    bVerbose        = false;
 
 }
 void ofxFeatureDetector::update(ofPixels & input) {
@@ -32,6 +36,7 @@ void ofxFeatureDetector::update(ofPixels & input) {
     camGrayImg = camImg;
 
     cv::Mat sceneImg = cv::cvarrToMat(camGrayImg.getCvImage());
+    
     if (sceneImg.empty()) {
            std::cerr << "Couldn't read cam in";
            return;
@@ -65,8 +70,8 @@ void ofxFeatureDetector::threadedFunction() {
             //FlannBasedMatcher matcher(new flann::LshIndexParams(20,10,2));
             //Ptr<cv::DescriptorMatcher> matcher(new cv::BFMatcher(cv::NORM_HAMMING, false));
                 
-            float distRatio = 0.5;
-           // ofLogNotice("distRatioat ") << distRatio;
+         
+            
 
             for(int i=0; i<images.size(); i++) {
 
@@ -95,7 +100,7 @@ void ofxFeatureDetector::threadedFunction() {
                         const cv::DMatch &m1 = matches[i][0];
                         const cv::DMatch &m2 = matches[i][1];
                         
-                        float targetDistance = distRatio * m2.distance;
+                        float targetDistance = distanceRatio * m2.distance;
                         
                         if(m1.distance <= targetDistance) {
                             good_matches.push_back(m1);
@@ -122,11 +127,11 @@ void ofxFeatureDetector::threadedFunction() {
                         detectedsScore[i]--;
                     }
                     
-                    detectedsScore[i] = ofClamp(detectedsScore[i], 0, 3);
+                    detectedsScore[i] = ofClamp(detectedsScore[i], 0, nTries);
                     
-                    if( detectedsScore[i] == 0 ||  detectedsScore[i] == 3) {
+                    if( detectedsScore[i] == 0 ||  detectedsScore[i] == nTries) {
                         
-                        bool bIsDetected = detectedsScore[i] == 3;
+                        bool bIsDetected = detectedsScore[i] == nTries;
                         
                         if(bIsDetected != detecteds[i] )
                             ofLogNotice("status image at ") << i << " with " <<  detecteds[i];
@@ -142,10 +147,14 @@ void ofxFeatureDetector::threadedFunction() {
              }
 
             bHasProcessed = true;
-        
-            float timeDiff = ofGetElapsedTimeMillis() - currentTime;
-            ofLogNotice("ofxFeatureDetector ")  << " processed in " <<  timeDiff << " millis";
-            currentTime = ofGetElapsedTimeMillis();
+                
+            if(bVerbose) {
+                
+                float timeDiff = ofGetElapsedTimeMillis() - currentTime;
+                ofLogNotice("ofxFeatureDetector ")  << " processed in " <<  timeDiff << " millis";
+                currentTime = ofGetElapsedTimeMillis();
+                    
+            }
 
         }
 
@@ -172,7 +181,10 @@ bool ofxFeatureDetector::getDetected(int index) {
 void ofxFeatureDetector::addImageToTrack(ofImage & image, string label) {
     
     if(image.isAllocated()) {
-    
+        
+        
+        image.resize(160,160);
+        
         ofxCvColorImage			img;
         ofxCvColorImage 	grayImg;
 
@@ -180,6 +192,7 @@ void ofxFeatureDetector::addImageToTrack(ofImage & image, string label) {
         grayImg.allocate(image.getWidth(), image.getHeight());
 
         img.setFromPixels(image.getPixels());
+        //img.resize(160,160);
         grayImg = img;
 
         cv::Mat matImg = cv::cvarrToMat(grayImg.getCvImage());
