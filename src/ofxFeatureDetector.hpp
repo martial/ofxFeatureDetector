@@ -37,6 +37,7 @@ public:
     void draw();
 
     bool getDetected(int index);
+    int getLowestScoreIndex();
     
     void addImageToTrack(ofImage  & image, string label);
     
@@ -78,7 +79,8 @@ private:
 
     vector<bool>    detecteds;
     vector<int>     detectedsScore;
-    
+    vector<int>     detectedsDistanceResult;
+
     float currentTime;
     
     bool bVerbose;
