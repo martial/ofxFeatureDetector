@@ -124,8 +124,7 @@ void ofxFeatureDetector::threadedFunction() {
                         bool bIsDetected = detectedsScore[i] == nTries;
                         
                         if(bIsDetected != detecteds[i] )
-                            ofLogNotice("status image at ") << i << " with " <<  detecteds[i];
-
+                            ofLogNotice("status image at ") << i << " with " <<  detecteds[i] << " and dist " << medDistance;
                         detecteds[i] = bIsDetected;
 
                     }
