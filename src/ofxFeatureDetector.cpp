@@ -10,7 +10,7 @@
 void ofxFeatureDetector::setup() {
 
     detector        = ORB::create(5000);
-    extractor       = BRISK::create(40, 6 );
+    extractor       = BRISK::create(60, 4 );
     matcher         = new cv::BFMatcher(cv::NORM_HAMMING, false);
  
     bHasProcessed   = true;
@@ -123,8 +123,9 @@ void ofxFeatureDetector::threadedFunction() {
                         
                         bool bIsDetected = detectedsScore[i] == nTries;
                         
-                        if(bIsDetected != detecteds[i] )
-                            ofLogNotice("status image at ") << i << " with " <<  detecteds[i] << " and dist " << medDistance;
+                        if(bIsDetected && bIsDetected != detecteds[i] )
+                            ofLogNotice("status image at ") << i << " with and dist " << medDistance;
+                        
                         detecteds[i] = bIsDetected;
 
                     }
@@ -160,6 +161,18 @@ void ofxFeatureDetector::threadedFunction() {
 
 
 }
+
+void ofxFeatureDetector::setExtractorSettings(int thresold, int octaves) {
+    
+    lock();
+    extractor       = BRISK::create(thresold, octaves );
+
+    
+    unlock();
+
+    
+}
+
 
 
 void ofxFeatureDetector::draw() {

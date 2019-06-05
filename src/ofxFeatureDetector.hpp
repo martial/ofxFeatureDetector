@@ -35,6 +35,8 @@ public:
     void update(ofPixels & input);
     void threadedFunction();
     void draw();
+    
+    void setExtractorSettings(int thresold, int octaves);
 
     bool getDetected(int index);
     int getLowestScoreIndex();
