@@ -9,18 +9,8 @@
 
 void ofxFeatureDetector::setup() {
 
-    //detector = BRISK::create(30, 4 );
-
-   // detector        = ORB::create(1000, 1.2, 8);
-    //extractor       = ORB::create(1000, 1.2, 8);
-
     detector        = ORB::create(5000);
-    //detector        = FastFeatureDetector::create();
-    //extractor       = SIFT::create();
-    extractor = BRISK::create(40, 6 );
-
-   // detector        = ORB::create(5000);
-    //extractor       = ORB::create(5000);
+    extractor       = BRISK::create(40, 6 );
     matcher         = new cv::BFMatcher(cv::NORM_HAMMING, false);
  
     bHasProcessed   = true;
@@ -29,8 +19,9 @@ void ofxFeatureDetector::setup() {
     
     distanceRatio   = 0.5;
     nTries          = 3;
+    nMinMatches     = 1;
 
-    bVerbose        = true;
+    bVerbose        = false;
 
 }
 void ofxFeatureDetector::update(ofPixels & input) {
@@ -64,28 +55,16 @@ void ofxFeatureDetector::threadedFunction() {
     while(isThreadRunning()){
 
            lock();
-
-
-
+        
             cv::Mat cam;
             while(camChannel.receive(cam)){
 
             std::vector<cv::KeyPoint> keypoints_scene;
             cv::Mat descriptors_scene;
-
-
                 
             detector->detect(cam, keypoints_scene);
             extractor->compute(cam,  keypoints_scene, descriptors_scene);
                 
-            // detect and compute all images
-
-            //FlannBasedMatcher matcher(new flann::LshIndexParams(20,10,2));
-            //Ptr<cv::DescriptorMatcher> matcher(new cv::BFMatcher(cv::NORM_HAMMING, false));
-                
-         
-            
-
             for(int i=0; i<images.size(); i++) {
 
                 if (images[i].empty()) {
@@ -130,9 +109,7 @@ void ofxFeatureDetector::threadedFunction() {
 
                     float medDistance = totalDistance / (float)nMatches;
 
-                   // ofLogNotice("ofxFeatureDetector ")  << "matches" << good_matches.size();
-
-                    if( good_matches.size() > 0 ) {
+                    if( good_matches.size() >= nMinMatches ) {
                         
                         detectedsScore[i]++;
                     } else {
@@ -171,7 +148,7 @@ void ofxFeatureDetector::threadedFunction() {
             if(bVerbose) {
                 
                 float timeDiff = ofGetElapsedTimeMillis() - currentTime;
-               // ofLogNotice("ofxFeatureDetector ")  << " processed in " <<  timeDiff << " millis";
+                ofLogNotice("ofxFeatureDetector ")  << " processed in " <<  timeDiff << " millis";
                 currentTime = ofGetElapsedTimeMillis();
                     
             }
@@ -217,7 +194,7 @@ void ofxFeatureDetector::addImageToTrack(ofImage & image, string label) {
 
         img.allocate(image.getWidth(), image.getHeight());
         grayImg.allocate(image.getWidth(), image.getHeight());
-
+        
         img.setFromPixels(image.getPixels());
         grayImg = img;
 
@@ -237,7 +214,7 @@ void ofxFeatureDetector::addImageToTrack(ofImage & image, string label) {
 
         
     } else {
-        //ofLogNotice("error while loading image ") << label;
+        ofLogNotice("error while loading image ") << label;
     }
 
 }

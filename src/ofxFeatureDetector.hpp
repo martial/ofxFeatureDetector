@@ -53,20 +53,15 @@ public:
     vector<string> labels;
     
     float distanceRatio;
-    int nTries;
+    int nTries, nMinMatches;
 
     
     
 private:
     
-    //Ptr<cv::ORB>            detector;
-    //Ptr<DescriptorMatcher>  matcher;
-    
     Ptr<FeatureDetector> detector;
     Ptr<DescriptorExtractor> extractor;
 
-    //cv::Ptr<ORB> detector;
-    //FlannBasedMatcher * matcher;
     ofxCvColorImage			camImg;
     ofxCvColorImage 	camGrayImg;
     Ptr<cv::DescriptorMatcher> matcher;
