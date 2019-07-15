@@ -22,6 +22,8 @@ void ofxFeatureDetector::setup() {
     nMinMatches     = 1;
 
     bVerbose        = false;
+    
+    bIsRunning = true;
 
 }
 void ofxFeatureDetector::update(ofPixels & input) {
@@ -34,15 +36,18 @@ void ofxFeatureDetector::update(ofPixels & input) {
     
     camImg.setFromPixels(input);
     camGrayImg = camImg;
-
+    
     cv::Mat sceneImg = cv::cvarrToMat(camGrayImg.getCvImage());
+    //sceneImg.convertTo(sceneImg, -1, 2, 0);
+    
+    
     
     if (sceneImg.empty()) {
            std::cerr << "Couldn't read cam in";
            return;
       }
 
-    if(bHasProcessed) {
+    if(bHasProcessed && bIsRunning) {
         camChannel.send(sceneImg);
         bHasProcessed = false;
     }
@@ -54,92 +59,104 @@ void ofxFeatureDetector::threadedFunction() {
 
     while(isThreadRunning()){
 
-           lock();
-        
+
+           // std::unique_lock<std::mutex> lock(mutex);
+
             cv::Mat cam;
             while(camChannel.receive(cam)){
 
-            std::vector<cv::KeyPoint> keypoints_scene;
-            cv::Mat descriptors_scene;
+                std::vector<cv::KeyPoint> keypoints_scene;
+                cv::Mat descriptors_scene;
                 
-            detector->detect(cam, keypoints_scene);
-            extractor->compute(cam,  keypoints_scene, descriptors_scene);
+                detector->detect(cam, keypoints_scene);
+                extractor->compute(cam,  keypoints_scene, descriptors_scene);
                 
-            for(int i=0; i<images.size(); i++) {
+                for(int i=0; i<images.size(); i++) {
 
-                if (images[i].empty()) {
-                     std::cerr << "Couldn't read image in";
-                     continue;
-                 }
-                
-                try {
+                    if (images[i].empty()) {
+                         std::cerr << "Couldn't read image in";
+                         continue;
+                     }
                     
-                    // match !
-                    vector<vector<cv::DMatch>> matches;
-                    matcher->knnMatch( images[i], descriptors_scene, matches, 2 );
-
-                    vector<cv::DMatch> good_matches;
-                    good_matches.reserve(matches.size());
-
-                  //  ofLogNotice("ofxFeatureDetector ")  << "matches" << matches.size();
-
-
-                    float totalDistance = 0.0;
-                    int nMatches = 0;
-                    for(size_t i = 0; i < matches.size(); ++i)
-                    {
-                        if(matches[i].size() < 2)
-                            continue;
-
-                        const cv::DMatch &m1 = matches[i][0];
-                        const cv::DMatch &m2 = matches[i][1];
+                    try {
                         
-                        float targetDistance = distanceRatio * m2.distance;
-                        
-                        if(m1.distance <= targetDistance) {
-                            good_matches.push_back(m1);
+                        // match !
+                        vector<vector<cv::DMatch>> matches;
+                        matcher->knnMatch( images[i], descriptors_scene, matches, 2 );
 
+                        vector<cv::DMatch> good_matches;
+                        good_matches.reserve(matches.size());
+
+                      //  ofLogNotice("ofxFeatureDetector ")  << "matches" << matches.size();
+
+
+                        float totalDistance = 0.0;
+                        int nMatches = 0;
+                        for(size_t i = 0; i < matches.size(); ++i)
+                        {
+                            if(matches[i].size() < 2)
+                                continue;
+
+                            const cv::DMatch &m1 = matches[i][0];
+                            const cv::DMatch &m2 = matches[i][1];
+                            
+                            float targetDistance = distanceRatio * m2.distance;
+                            
+                            if(m1.distance <= targetDistance) {
+                                good_matches.push_back(m1);
+                                totalDistance += targetDistance;
+
+
+                            }
+
+                            nMatches++;
+                            
+                        }
+
+                        float medDistance = totalDistance / (float)good_matches.size();
+                        if(good_matches.size() == 0)
+                        medDistance = 999;
+
+                        if( good_matches.size() >= nMinMatches ) {
+                            
+                            detectedsScore[i]++;
+                        } else {
+                            
+                            detectedsScore[i]--;
+                        }
+                        
+                        detectedsScore[i] = ofClamp(detectedsScore[i], 0, nTries);
+                        
+                        if( detectedsScore[i] == 0 ||  detectedsScore[i] >= nTries) {
+                            
+                            bool bIsDetected = detectedsScore[i] == nTries;
+                            
+                            if(bIsDetected && bIsDetected != detecteds[i] )
+                                ofLogNotice("status image at ") << i << " with and dist " << medDistance;
+                            
+                            detecteds[i] = bIsDetected;
 
                         }
 
-                        totalDistance += targetDistance;
-                        nMatches++;
+                        float blurRate      = 0.9;
+                        detectedsDistanceResult[i]      = blurRate *  detectedsDistanceResult[i]   +  (1.0f - blurRate) * medDistance;
+                        
+                        /*
+
+                        if(detecteds[i]== 1) {
+                         
+                            float blurRate      = 0.9;
+                             detectedsDistanceResult[i]      = blurRate *  detectedsDistanceResult[i]   +  (1.0f - blurRate) * medDistance;
+                        } else {
+                            detectedsDistanceResult[i] = 999;
+
+                        }
+                         
+                         */
+                        
+                    } catch (...) {
                         
                     }
-
-                    float medDistance = totalDistance / (float)nMatches;
-
-                    if( good_matches.size() >= nMinMatches ) {
-                        
-                        detectedsScore[i]++;
-                    } else {
-                        
-                        detectedsScore[i]--;
-                    }
-                    
-                    detectedsScore[i] = ofClamp(detectedsScore[i], 0, nTries);
-                    
-                    if( detectedsScore[i] == 0 ||  detectedsScore[i] == nTries) {
-                        
-                        bool bIsDetected = detectedsScore[i] == nTries;
-                        
-                        if(bIsDetected && bIsDetected != detecteds[i] )
-                            ofLogNotice("status image at ") << i << " with and dist " << medDistance;
-                        
-                        detecteds[i] = bIsDetected;
-
-                    }
-
-                    if(detecteds[i]== 1) {
-                        detectedsDistanceResult[i] = medDistance;
-                    } else {
-                        detectedsDistanceResult[i] = 999;
-
-                    }
-                    
-                } catch (...) {
-                    
-                }
 
              }
 
@@ -155,9 +172,10 @@ void ofxFeatureDetector::threadedFunction() {
 
         }
 
-     unlock();
+     //unlock();
 
       }
+    waitForThread();
 
 
 }
@@ -166,8 +184,6 @@ void ofxFeatureDetector::setExtractorSettings(int thresold, int octaves) {
     
     lock();
     extractor       = BRISK::create(thresold, octaves );
-
-    
     unlock();
 
     
@@ -188,7 +204,6 @@ bool ofxFeatureDetector::getDetected(int index) {
 
 int ofxFeatureDetector::getLowestScoreIndex(){
 
-
     int min_pos = distance(detectedsDistanceResult.begin(),min_element(detectedsDistanceResult.begin(),detectedsDistanceResult.end()));
     return min_pos;
 }
@@ -202,7 +217,7 @@ void ofxFeatureDetector::addImageToTrack(ofImage & image, string label) {
         
                 
         ofxCvColorImage			img;
-        ofxCvColorImage 	grayImg;
+        ofxCvGrayscaleImage 	grayImg;
 
         img.allocate(image.getWidth(), image.getHeight());
         grayImg.allocate(image.getWidth(), image.getHeight());

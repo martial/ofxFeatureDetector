@@ -27,8 +27,10 @@ public:
         nChannels = 0;
     }
     ~ofxFeatureDetector(){
+        
         stop();
-        waitForThread(false);
+
+        //stop();
     }
     
     void setup();
@@ -48,39 +50,46 @@ public:
         startThread();
     }
     void stop(){
-        std::unique_lock<std::mutex> lck(mutex);
-        stopThread();
+        
+        waitForThread(true);
+
     }
     
     vector<string> labels;
     
     float distanceRatio;
     int nTries, nMinMatches;
+    
+    bool bIsRunning;
+    
+    ofxCvColorImage            camImg;
+    ofxCvGrayscaleImage        camGrayImg;
+    ofImage resultImg;
+    vector<float>                 detectedsDistanceResult;
 
-    
-    
+    vector<int>     detectedsScore;
+
 private:
     
-    Ptr<FeatureDetector> detector;
+    Ptr<FeatureDetector>            detector;
     Ptr<DescriptorExtractor> extractor;
-
-    ofxCvColorImage			camImg;
-    ofxCvColorImage 	camGrayImg;
     Ptr<cv::DescriptorMatcher> matcher;
 
     vector<cv::Mat> images;
-
+    cv::Mat sceneImg;
+    
     ofThreadChannel<cv::Mat> camChannel;
     int nChannels;
     bool bHasProcessed;
 
     vector<bool>    detecteds;
-    vector<int>     detectedsScore;
-    vector<int>     detectedsDistanceResult;
 
     float currentTime;
     
     bool bVerbose;
+    
+    std::condition_variable condition;
+
 };
 
 #endif /* FeatureDetector_hpp */
